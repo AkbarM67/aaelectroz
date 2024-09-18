@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "260986349391",
+    "project_id": "aaelectroz-a1718",
+    "storage_bucket": "aaelectroz-a1718.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260986349391:android:9f5f05e339d7e9c3a2873a",
+        "android_client_info": {
+          "package_name": "com.AkbarM.aaelectroz_fe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4mVlGCfE2qmyyHq8vJLSJ5FF82udFXYU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
