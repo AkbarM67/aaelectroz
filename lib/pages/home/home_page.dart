@@ -1,5 +1,6 @@
 import 'package:aaelectroz_fe/models/user_model.dart';
 import 'package:aaelectroz_fe/providers/auth_provider.dart';
+import 'package:aaelectroz_fe/providers/category_provider.dart';
 import 'package:aaelectroz_fe/providers/product_provider.dart';
 import 'package:aaelectroz_fe/theme.dart';
 import 'package:aaelectroz_fe/widgets/product_card.dart';
@@ -13,7 +14,7 @@ class HomePage extends StatelessWidget {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     UserModel user = authProvider.user;
     ProductProvider productProvider = Provider.of<ProductProvider>(context);
-
+    CategoryProvider categoryProvider = Provider.of<CategoryProvider>(context);
     Widget header() {
       return Container(
         margin: EdgeInsets.only(
@@ -22,7 +23,6 @@ class HomePage extends StatelessWidget {
           right: defaultMargin,
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Column(
@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
+            )
           ],
         ),
       );
@@ -63,122 +63,43 @@ class HomePage extends StatelessWidget {
 
     Widget categories() {
       return Container(
-        margin: EdgeInsets.only(
-          top: defaultMargin,
-        ),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              SizedBox(
-                width: defaultMargin,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: primaryColor,
-                ),
-                child: Text(
-                  'All Electronik',
-                  style: primaryTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: subtitleColor,
-                  ),
-                  color: transparentColor,
-                ),
-                child: Text(
-                  'Amplifier',
-                  style: subtitleTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: subtitleColor,
-                  ),
-                  color: transparentColor,
-                ),
-                child: Text(
-                  'Amplifier Mini',
-                  style: subtitleTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: subtitleColor,
-                  ),
-                  color: transparentColor,
-                ),
-                child: Text(
-                  'Mixer Audio',
-                  style: subtitleTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: subtitleColor,
-                  ),
-                  color: transparentColor,
-                ),
-                child: Text(
-                  'Soundcard',
-                  style: subtitleTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
-                  ),
-                ),
-              ),
-            ],
+          margin: EdgeInsets.only(
+            top: defaultMargin,
+            left: 20,
           ),
-        ),
-      );
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: categoryProvider.categories
+                  .map(
+                    (categories) => GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        margin: EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: subtitleColor,
+                          ),
+                          color: transparentColor,
+                        ),
+                        child: Text(
+                          categories.name!,
+                          style: primaryTextStyle.copyWith(
+                            fontSize: 13,
+                            fontWeight: medium,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ));
     }
 
     Widget popularProductsTitle() {
@@ -200,7 +121,9 @@ class HomePage extends StatelessWidget {
 
     Widget popularProducts() {
       return Container(
-        margin: EdgeInsets.only(top: 14),
+        margin: EdgeInsets.only(
+          top: 14,
+        ),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -240,17 +163,16 @@ class HomePage extends StatelessWidget {
 
     Widget newArrivals() {
       return Container(
-        margin: EdgeInsets.only(
-          top: 14,
-        ),
-        child: Column(
-          children: productProvider.products
-              .map(
-                (product) => ProductTile(product),
-              )
-              .toList(),
-        ),
-      );
+          margin: EdgeInsets.only(
+            top: 14,
+          ),
+          child: Column(
+            children: productProvider.products
+                .map(
+                  (product) => ProductTile(product),
+                )
+                .toList(),
+          ));
     }
 
     return ListView(

@@ -3,11 +3,13 @@ import 'package:aaelectroz_fe/pages/checkout_page.dart';
 import 'package:aaelectroz_fe/pages/checkout_success_page.dart';
 import 'package:aaelectroz_fe/pages/edit_profile_page.dart';
 import 'package:aaelectroz_fe/pages/home/main_page.dart';
+import 'package:aaelectroz_fe/pages/payment_page.dart';
 import 'package:aaelectroz_fe/pages/sign_in_page.dart';
 import 'package:aaelectroz_fe/pages/sign_up_page.dart';
 import 'package:aaelectroz_fe/pages/splash_page.dart';
 import 'package:aaelectroz_fe/providers/auth_provider.dart';
 import 'package:aaelectroz_fe/providers/cart_provider.dart';
+import 'package:aaelectroz_fe/providers/category_provider.dart';
 import 'package:aaelectroz_fe/providers/page_provider.dart';
 import 'package:aaelectroz_fe/providers/product_provider.dart';
 import 'package:aaelectroz_fe/providers/transaction_provider.dart';
@@ -42,6 +44,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => PageProvider(),
         ),
+          ChangeNotifierProvider(
+          create: (context) => CategoryProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -53,6 +58,7 @@ class MyApp extends StatelessWidget {
           '/edit-profile': (context) => EditProfilePage(),
           '/cart': (context) => CartPage(),
           '/checkout': (context) => CheckoutPage(),
+          '/checkout-payment': (context) => PaymentPage(),
           '/checkout-success': (context) => CheckoutSuccessPage(),
         },
       ),

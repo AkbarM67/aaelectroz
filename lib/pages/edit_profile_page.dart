@@ -4,12 +4,57 @@ import 'package:aaelectroz_fe/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class EditProfilePage extends StatelessWidget {
+class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({super.key});
+
+  @override
+  State<EditProfilePage> createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     UserModel user = authProvider.user;
 
+    TextEditingController nameController =
+        TextEditingController(text: user.name);
+
+    TextEditingController usernameController =
+        TextEditingController(text: user.username);
+
+    TextEditingController emailController =
+        TextEditingController(text: user.email);
+
+    handleEditProfile() async {
+      if (await authProvider.editProfile(
+        name: nameController.text,
+        username: usernameController.text,
+        email: emailController.text,
+        token: authProvider.user.token!,
+      )) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: secondaryColor,
+            content: Text(
+              'Berhasil Update!',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+        Navigator.pushNamed(context, '/home');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: alertColor,
+            content: Text(
+              'Gagal Update!',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      }
+    }
     PreferredSizeWidget header() {
       return AppBar(
         leading: IconButton(
@@ -26,11 +71,11 @@ class EditProfilePage extends StatelessWidget {
         ),
         actions: [
           IconButton(
+            onPressed: handleEditProfile,
             icon: Icon(
               Icons.check,
               color: primaryColor,
             ),
-            onPressed: () {},
           )
         ],
       );
@@ -52,6 +97,7 @@ class EditProfilePage extends StatelessWidget {
             ),
             TextFormField(
               style: primaryTextStyle,
+              controller: nameController,
               decoration: InputDecoration(
                 hintText: user.name,
                 hintStyle: primaryTextStyle,
@@ -83,6 +129,7 @@ class EditProfilePage extends StatelessWidget {
             ),
             TextFormField(
               style: primaryTextStyle,
+              controller: usernameController,
               decoration: InputDecoration(
                 hintText: '@${user.username}',
                 hintStyle: primaryTextStyle,
@@ -114,6 +161,7 @@ class EditProfilePage extends StatelessWidget {
             ),
             TextFormField(
               style: primaryTextStyle,
+              controller: emailController,
               decoration: InputDecoration(
                 hintText: user.email,
                 hintStyle: primaryTextStyle,

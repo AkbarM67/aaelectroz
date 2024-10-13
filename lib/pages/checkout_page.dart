@@ -1,48 +1,23 @@
-import 'package:aaelectroz_fe/providers/auth_provider.dart';
+
 import 'package:aaelectroz_fe/providers/cart_provider.dart';
-import 'package:aaelectroz_fe/providers/transaction_provider.dart';
 import 'package:aaelectroz_fe/theme.dart';
 import 'package:aaelectroz_fe/widgets/checkout_card.dart';
-import 'package:aaelectroz_fe/widgets/loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CheckoutPage extends StatefulWidget {
+  const CheckoutPage({super.key});
+
   @override
-  _CheckoutPageState createState() => _CheckoutPageState();
+  State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  bool isLoading = false;
-
   @override
   Widget build(BuildContext context) {
     CartProvider cartProvider = Provider.of<CartProvider>(context);
-    TransactionProvider transactionProvider =
-        Provider.of<TransactionProvider>(context);
-    AuthProvider authProvider = Provider.of<AuthProvider>(context);
 
-    handleCheckout() async {
-      setState(() {
-        isLoading = true;
-      });
-
-      if (await transactionProvider.checkout(
-        authProvider.user.token!,
-        cartProvider.carts,
-        cartProvider.totalPrice(),
-      )) {
-        cartProvider.carts = [];
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/checkout-success', (route) => false);
-      }
-
-      setState(() {
-        isLoading = false;
-      });
-    }
-
-    PreferredSizeWidget header() {
+    header() {
       return AppBar(
         backgroundColor: backgroundColor1,
         elevation: 0,
@@ -59,16 +34,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
           horizontal: defaultMargin,
         ),
         children: [
-          // NOTE: LIST ITEMS
+          // NOTE : LIST ITEMS
           Container(
-            margin: EdgeInsets.only(
-              top: defaultMargin,
-            ),
+            margin: EdgeInsets.only(top: defaultMargin),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'List Items',
+                  'List items',
                   style: primaryTextStyle.copyWith(
                     fontSize: 16,
                     fontWeight: medium,
@@ -84,8 +57,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ],
             ),
           ),
-
-          // NOTE: ADDRESS DETAILS
+          // NOTE : ADDRESS DETAILS
           Container(
             margin: EdgeInsets.only(
               top: defaultMargin,
@@ -140,13 +112,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           ),
                         ),
                         Text(
-                          'aaelectroz Core',
+                          'aaelectroz',
                           style: primaryTextStyle.copyWith(
                             fontWeight: medium,
                           ),
                         ),
                         SizedBox(
-                          height: defaultMargin,
+                          height: 30,
                         ),
                         Text(
                           'Your Address',
@@ -169,7 +141,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
           ),
 
-          // NOTE: PAYMENT SUMMARY
+          // NOTE : PAYMENT SUMMARY
           Container(
             margin: EdgeInsets.only(
               top: defaultMargin,
@@ -209,9 +181,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 12,
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -228,9 +197,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                     ),
                   ],
-                ),
-                SizedBox(
-                  height: 12,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -279,45 +245,39 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ],
             ),
           ),
-
-          // NOTE: CHECKOUT BUTTON
+          // NOTE : CHECKOUT BUTTON
           SizedBox(
-            height: defaultMargin,
+            height: 30,
           ),
           Divider(
             thickness: 1,
             color: Color(0xff2E3141),
           ),
-          isLoading
-              ? Container(
-                  margin: EdgeInsets.only(
-                    bottom: 30,
-                  ),
-                  child: LoadingButton(),
-                )
-              : Container(
-                  height: 50,
-                  width: double.infinity,
-                  margin: EdgeInsets.symmetric(
-                    vertical: defaultMargin,
-                  ),
-                  child: TextButton(
-                    onPressed: handleCheckout,
-                    style: TextButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Checkout Now',
-                      style: primaryTextStyle.copyWith(
-                        fontSize: 16,
-                        fontWeight: semiBold,
-                      ),
-                    ),
-                  ),
+          Container(
+            height: 50,
+            width: double.infinity,
+            margin: EdgeInsets.symmetric(
+              vertical: defaultMargin,
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/checkout-payment');
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
+              ),
+              child: Text(
+                'Checkout Now',
+                style: primaryTextStyle.copyWith(
+                  fontSize: 16,
+                  fontWeight: medium,
+                ),
+              ),
+            ),
+          ),
         ],
       );
     }
