@@ -1,3 +1,4 @@
+import 'package:aaelectroz_fe/firebase_options.dart';
 import 'package:aaelectroz_fe/pages/cart_page.dart';
 import 'package:aaelectroz_fe/pages/checkout_page.dart';
 import 'package:aaelectroz_fe/pages/checkout_success_page.dart';
@@ -14,12 +15,19 @@ import 'package:aaelectroz_fe/providers/page_provider.dart';
 import 'package:aaelectroz_fe/providers/product_provider.dart';
 import 'package:aaelectroz_fe/providers/transaction_provider.dart';
 import 'package:aaelectroz_fe/providers/wishlist_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override
