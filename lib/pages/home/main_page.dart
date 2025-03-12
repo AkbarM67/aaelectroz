@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
+  final String? selectedCategory;
+  const MainPage({Key? key, this.selectedCategory}) : super(key: key);
   @override
   _MainPageState createState() => _MainPageState();
 }
@@ -124,10 +126,18 @@ class _MainPageState extends State<MainPage> {
       );
     }
 
-       Widget body() {
+      Widget body() {
+
       switch (pageProvider.currentIndex) {
         case 0:
-          return HomePage();
+          return HomePage(onCategorySelected: (category) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainPage(selectedCategory: category),
+              ),
+            );
+          });
         case 1:
           return ChatPage();
         case 2:
@@ -135,7 +145,14 @@ class _MainPageState extends State<MainPage> {
         case 3:
           return ProfilePage();
         default:
-          return HomePage();
+          return HomePage(onCategorySelected: (category) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainPage(selectedCategory: category),
+      ),
+    );
+  },);
       }
     }
 

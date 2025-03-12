@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:aaelectroz_fe/models/category_model.dart';
 import 'package:http/http.dart' as http;
- // Path ke model Category
+
 
 class CategoryService {
   String baseUrl = 'http://127.0.0.1:8000/api';
@@ -15,20 +15,22 @@ class CategoryService {
       headers: headers,
     );
 
-    print(response.body);
+    print("Response Status Code: ${response.statusCode}");
+
+    print("Response: ${response.body}");
 
     if (response.statusCode == 200) {
-      List data = jsonDecode(response.body)['data']['data'];
-      List<CategoryModel> categories = [];
+      final Map<String, dynamic> decodedData = jsonDecode(response.body);
 
-      for (var item in data) {
-        categories.add(CategoryModel.fromJson(item));
+      if (decodedData.containsKey('data') && decodedData['data'].containsKey('data')) {
+        final List<dynamic> data = decodedData['data']['data'];
+
+        return data.map((item) => CategoryModel.fromJson(item)).toList();
+      } else {
+        throw Exception("Invalid API Response Format");
       }
-
-      return categories;
     } else {
-      throw Exception('Gagal Get Categories');
+      throw Exception('Gagal Get Categories: ${response.statusCode}');
     }
   }
 }
-

@@ -50,7 +50,7 @@ class CheckoutCard extends StatelessWidget {
                   height: 2,
                 ),
                 Text(
-                  '\$${cart.product!.price}',
+                  'Rp ${cart.product!.price}',
                   style: priceTextStyle,
                 ),
               ],

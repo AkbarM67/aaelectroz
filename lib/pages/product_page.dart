@@ -1,11 +1,12 @@
 import 'package:aaelectroz_fe/models/product_model.dart';
-import 'package:aaelectroz_fe/pages/detail_chat_page.dart';
+
 import 'package:aaelectroz_fe/providers/cart_provider.dart';
 import 'package:aaelectroz_fe/providers/wishlist_provider.dart';
 import 'package:aaelectroz_fe/theme.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProductPage extends StatefulWidget {
   final ProductModel product;
@@ -30,6 +31,16 @@ class _ProductPageState extends State<ProductPage> {
   ];
 
   int currentIndex = 0;
+
+  Future<void> _openWhatsApp() async {
+    final phoneNumber = '628123456789'; // Ganti dengan nomor WhatsApp yang ingin dihubungi
+    final whatsappUrl = "https://wa.me/085155065355";
+    if (await canLaunch(whatsappUrl)) {
+      await launch(whatsappUrl);
+    } else {
+      throw "Tidak bisa membuka WhatsApp";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -309,7 +320,7 @@ class _ProductPageState extends State<ProductPage> {
                     style: primaryTextStyle,
                   ),
                   Text(
-                    '\$${widget.product.price}',
+                    'Rp${widget.product.price}',
                     style: priceTextStyle.copyWith(
                       fontSize: 16,
                       fontWeight: semiBold,
@@ -350,7 +361,7 @@ class _ProductPageState extends State<ProductPage> {
               ),
             ),
 
-            // NOTE: FAMILIAR SHOES
+            // NOTE: FAMILIAR Electroz
             Container(
               width: double.infinity,
               margin: EdgeInsets.only(
@@ -397,14 +408,7 @@ class _ProductPageState extends State<ProductPage> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailChatPage(widget.product),
-                        ),
-                      );
-                    },
+                    onTap: _openWhatsApp,
                     child: Container(
                       width: 54,
                       height: 54,

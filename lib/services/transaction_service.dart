@@ -1,37 +1,26 @@
 import 'package:aaelectroz_fe/models/cart_model.dart';
-import 'package:aaelectroz_fe/models/midtrans_model.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class TransactionService {
-  String baseUrl = 'http://127.0.0.1:8000/api';
-  String payType = '';
+  final String _baseUrl = 'http://127.0.0.1:8000/api';
 
-  Future<MidtransModel> checkout({
-    required String token,
-    required List<CartModel> carts,
-    required double totalPrice,
-    required String va,
-  }) async {
-    var url = '$baseUrl/checkout';
-
-    var urlMidtrans = 'https://api.sandbox.midtrans.com/v2/charge';
-
+  Future<bool> checkout(
+    String token,
+    List<CartModel> carts,
+    double totalPrice,
+    String address,
+    String phone, // Tambahkan parameter phone
+  ) async {
+    var url = '$_baseUrl/checkout';
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': token,
+      'Authorization': 'Bearer $token',
     };
-
-    var headersMidtrans = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization':
-          'Basic U0ItTWlkLXNlcnZlci03ZXA3V1lKSVFDWVV2OUJtV1p1VDJlS246',
-    };
-
     var body = jsonEncode(
       {
-        'address': 'Bogor',
+        'address': address,
+        'phone': phone, // Tambahkan phone di dalam body request
         'items': carts
             .map(
               (cart) => {
@@ -40,50 +29,11 @@ class TransactionService {
               },
             )
             .toList(),
-        'status': 'PENDING',
+        'status': "PENDING",
         'total_price': totalPrice,
         'shipping_price': 0,
       },
     );
-
-    if (va == 'mandiri') {
-      payType = 'echannel';
-      va = 'permata';
-    } else if (va == 'gopay') {
-      payType = 'gopay';
-      va = 'permata';
-    } else {
-      payType = 'bank_transfer';
-    }
-
-    print(payType);
-
-    var bodyMidtrans = jsonEncode({
-      'payment_type': payType,
-      'bank_transfer': {'bank': va},
-      'gopay': {'enable_callback': true, 'callback_url': 'someapps://callback'},
-      'echannel': {'bill_info1': 'Payment For:', 'bill_info2': 'Other'},
-      'transaction_details': {
-        'order_id': 'order-102-101' + DateTime.now().toString(),
-        'gross_amount': totalPrice
-      },
-      'customer_details': {
-        'email': 'test@Midtrans.com',
-        "first_name": "budi",
-        "last_name": "utomo",
-        'phone': '+628112341234'
-      },
-      'item_details': carts
-          .map(
-            (cart) => {
-              'id': cart.product!.id,
-              'price': cart.product!.price,
-              'quantity': cart.quantity,
-              'name': cart.product!.name,
-            },
-          )
-          .toList(),
-    });
 
     var response = await http.post(
       Uri.parse(url),
@@ -91,22 +41,12 @@ class TransactionService {
       body: body,
     );
 
-    var responseMidtrans = await http.post(
-      Uri.parse(urlMidtrans),
-      headers: headersMidtrans,
-      body: bodyMidtrans,
-    );
-
     print(response.body);
-    print(responseMidtrans.body);
 
     if (response.statusCode == 200) {
-      var data = jsonDecode(responseMidtrans.body);
-      MidtransModel midtrans = MidtransModel.fromJson(data);
-
-      return midtrans;
+      return true;
     } else {
-      throw Exception('Gagal melakukan checkout');
+      throw Exception('Failed to process checkout!');
     }
   }
 }

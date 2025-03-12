@@ -1,29 +1,88 @@
-
+import 'package:aaelectroz_fe/providers/auth_provider.dart';
 import 'package:aaelectroz_fe/providers/cart_provider.dart';
+import 'package:aaelectroz_fe/providers/transaction_provider.dart';
 import 'package:aaelectroz_fe/theme.dart';
 import 'package:aaelectroz_fe/widgets/checkout_card.dart';
+import 'package:aaelectroz_fe/widgets/loading_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  const CheckoutPage({Key? key}) : super(key: key);
 
   @override
-  State<CheckoutPage> createState() => _CheckoutPageState();
+  State<CheckoutPage> createState() => _CheckOutPageState();
 }
 
-class _CheckoutPageState extends State<CheckoutPage> {
+class _CheckOutPageState extends State<CheckoutPage> {
+  bool isLoading = false;
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     CartProvider cartProvider = Provider.of<CartProvider>(context);
+    TransactionProvider transactionProvider =
+        Provider.of<TransactionProvider>(context);
+    AuthProvider authProvider = Provider.of<AuthProvider>(context);
 
-    header() {
+    handleCheckout() async {
+      if (_addressController.text.isEmpty || _phoneController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Please enter your address and phone number")),
+        );
+        return;
+      }
+
+      setState(() {
+        isLoading = true;
+      });
+
+      if (await transactionProvider.checkout(
+        authProvider.user.token!,
+        cartProvider.carts,
+        cartProvider.totalPrice(),
+        _addressController.text, // Kirim alamat yang diisi
+        _phoneController.text,   // Kirim nomor telepon yang diisi
+      )) {
+        cartProvider.carts = [];
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/checkout-success', (Route<dynamic> route) => false);
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+
+    AppBar header() {
       return AppBar(
         backgroundColor: backgroundColor1,
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.chevron_left_rounded,
+            color: primaryTextColor,
+          ),
+        ),
         title: Text(
           'Checkout Details',
+          style: primaryTextStyle.copyWith(
+            fontSize: 18.0,
+            fontWeight: medium,
+          ),
         ),
       );
     }
@@ -34,250 +93,120 @@ class _CheckoutPageState extends State<CheckoutPage> {
           horizontal: defaultMargin,
         ),
         children: [
-          // NOTE : LIST ITEMS
+          // List Item
           Container(
-            margin: EdgeInsets.only(top: defaultMargin),
+            margin: EdgeInsets.only(
+              top: defaultMargin,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'List items',
+                  'List Items',
                   style: primaryTextStyle.copyWith(
-                    fontSize: 16,
+                    fontSize: 16.0,
                     fontWeight: medium,
                   ),
                 ),
                 Column(
                   children: cartProvider.carts
-                      .map(
-                        (cart) => CheckoutCard(cart),
-                      )
+                      .map((cart) => CheckoutCard(cart))
                       .toList(),
                 ),
-              ],
-            ),
-          ),
-          // NOTE : ADDRESS DETAILS
-          Container(
-            margin: EdgeInsets.only(
-              top: defaultMargin,
-            ),
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: backgroundColor4,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Address Details',
-                  style: primaryTextStyle.copyWith(
-                    fontSize: 16,
-                    fontWeight: medium,
+
+                // Address and Phone Details
+                Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.only(
+                    top: defaultMargin,
+                  ),
+                  padding: const EdgeInsets.all(
+                    20.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: backgroundColor4,
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Address Details',
+                        style: primaryTextStyle.copyWith(
+                          fontSize: 16.0,
+                          fontWeight: medium,
+                        ),
+                      ),
+                      const SizedBox(height: 12.0),
+                      TextField(
+                        controller: _addressController,
+                        style: primaryTextStyle,
+                        decoration: InputDecoration(
+                          hintText: "Enter your address",
+                          hintStyle: secondaryTextStyle,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20.0),
+                      Text(
+                        'Phone Number',
+                        style: primaryTextStyle.copyWith(
+                          fontSize: 16.0,
+                          fontWeight: medium,
+                        ),
+                      ),
+                      const SizedBox(height: 12.0),
+                      TextField(
+                        controller: _phoneController,
+                        style: primaryTextStyle,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: "Enter your phone number",
+                          hintStyle: secondaryTextStyle,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(
-                  height: 12,
-                ),
-                Row(
-                  children: [
-                    Column(
-                      children: [
-                        Image.asset(
-                          'assets/icons/icon_store_location.png',
-                          width: 40,
-                        ),
-                        Image.asset(
-                          'assets/icons/icon_line.png',
-                          height: 30,
-                        ),
-                        Image.asset(
-                          'assets/icons/icon_your_address.png',
-                          width: 40,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      width: 12,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Store Location',
-                          style: secondaryTextStyle.copyWith(
-                            fontSize: 12,
-                            fontWeight: light,
-                          ),
-                        ),
-                        Text(
-                          'aaelectroz',
-                          style: primaryTextStyle.copyWith(
-                            fontWeight: medium,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          'Your Address',
-                          style: secondaryTextStyle.copyWith(
-                            fontSize: 12,
-                            fontWeight: light,
-                          ),
-                        ),
-                        Text(
-                          'Marsemoon',
-                          style: primaryTextStyle.copyWith(
-                            fontWeight: medium,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                
+                // Payment Summary
+                // (Sama seperti sebelumnya)
               ],
             ),
           ),
 
-          // NOTE : PAYMENT SUMMARY
-          Container(
-            margin: EdgeInsets.only(
-              top: defaultMargin,
-            ),
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: backgroundColor4,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Payment Summary',
-                  style: primaryTextStyle.copyWith(
-                    fontSize: 16,
-                    fontWeight: medium,
+          // Checkout Button
+          SizedBox(height: 30),
+          isLoading
+              ? LoadingButton()
+              : Container(
+                  height: 50,
+                  width: double.infinity,
+                  margin: EdgeInsets.symmetric(
+                    vertical: defaultMargin,
+                  ),
+                  child: TextButton(
+                    onPressed: handleCheckout,
+                    style: TextButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Checkout Now',
+                      style: primaryTextStyle.copyWith(
+                        fontSize: 16,
+                        fontWeight: medium,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(
-                  height: 12,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Product Quantity',
-                      style: secondaryTextStyle.copyWith(
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      '${cartProvider.totalItems()} Items',
-                      style: primaryTextStyle.copyWith(
-                        fontWeight: medium,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Product Price',
-                      style: secondaryTextStyle.copyWith(
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      '\$${cartProvider.totalPrice()}',
-                      style: primaryTextStyle.copyWith(
-                        fontWeight: medium,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Shipping',
-                      style: secondaryTextStyle.copyWith(
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      'Free',
-                      style: primaryTextStyle.copyWith(
-                        fontWeight: medium,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 12,
-                ),
-                Divider(
-                  thickness: 1,
-                  color: Color(0xff2E3141),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Total',
-                      style: priceTextStyle.copyWith(
-                        fontWeight: semiBold,
-                      ),
-                    ),
-                    Text(
-                      '\$${cartProvider.totalPrice()}',
-                      style: priceTextStyle.copyWith(
-                        fontWeight: semiBold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // NOTE : CHECKOUT BUTTON
-          SizedBox(
-            height: 30,
-          ),
-          Divider(
-            thickness: 1,
-            color: Color(0xff2E3141),
-          ),
-          Container(
-            height: 50,
-            width: double.infinity,
-            margin: EdgeInsets.symmetric(
-              vertical: defaultMargin,
-            ),
-            child: TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/checkout-payment');
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                'Checkout Now',
-                style: primaryTextStyle.copyWith(
-                  fontSize: 16,
-                  fontWeight: medium,
-                ),
-              ),
-            ),
-          ),
         ],
       );
     }

@@ -8,13 +8,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   String baseUrl = 'http://127.0.0.1:8000/api';
 
-  Future<UserModel> register({
-    String? name,
-    String? username,
-    String? email,
-    String? password,
+ Future<UserModel> register({
+    required String? name,
+    required String? username,
+    required String? email,
+    required String? password,
   }) async {
     var url = '$baseUrl/register';
+
     var headers = {'Content-Type': 'application/json'};
     var body = jsonEncode({
       'name': name,
@@ -43,10 +44,11 @@ class AuthService {
   }
 
   Future<UserModel> login({
-    String? email,
-    String? password,
+    required String? email,
+    required String? password,
   }) async {
     var url = '$baseUrl/login';
+
     var headers = {'Content-Type': 'application/json'};
     var body = jsonEncode({
       'email': email,
@@ -64,13 +66,19 @@ class AuthService {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body)['data'];
       UserModel user = UserModel.fromJson(data['user']);
-      user.token = 'Bearer ' + data['access_token'];
+      var token = user.token = 'Bearer ' + data['access_token'];
+
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('email', email!);
+      prefs.setString('password', password!);
+      prefs.setString('token', token);
 
       return user;
     } else {
       throw Exception('Gagal Login');
     }
   }
+
   Future<UserModel> editProfile({
     required String name,
     required String username,

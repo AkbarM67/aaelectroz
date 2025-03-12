@@ -1,5 +1,14 @@
-plugins {
-     id 'com.google.gms.google-services' version '4.4.2' apply false
+buildscript {
+    ext.kotlin_version = '1.8.10' // Pastikan Anda mendeklarasikan versi Kotlin
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.3.1" // Sesuaikan dengan Gradle Wrapper
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.15' // Jika Anda menggunakan layanan Google
+    }
 }
 
 allprojects {
@@ -9,6 +18,7 @@ allprojects {
     }
 }
 
+// Konfigurasi build directory
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
