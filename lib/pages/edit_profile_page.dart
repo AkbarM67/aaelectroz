@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:aaelectroz_fe/models/user_model.dart';
 import 'package:aaelectroz_fe/providers/auth_provider.dart';
 import 'package:aaelectroz_fe/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -12,27 +14,45 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  File? _image;
+  final picker = ImagePicker();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+
+  Future<void> _pickImage() async {
+    try {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    } else {
+      print("No image selected");
+    }
+  } catch (e) {
+    print("Error picking image: $e");
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     AuthProvider authProvider = Provider.of<AuthProvider>(context);
     UserModel user = authProvider.user;
 
-    TextEditingController nameController =
-        TextEditingController(text: user.name);
+    _nameController.text = user.name!;
+    _usernameController.text = user.username!;
+    _emailController.text = user.email!;
 
-    TextEditingController usernameController =
-        TextEditingController(text: user.username);
-
-    TextEditingController emailController =
-        TextEditingController(text: user.email);
-
-    handleEditProfile() async {
-      if (await authProvider.editProfile(
-        name: nameController.text,
-        username: usernameController.text,
-        email: emailController.text,
+    void handleEditProfile() async {
+      bool? result = await authProvider.editProfile(
+        name: _nameController.text,
+        username: _usernameController.text,
+        email: _emailController.text,
         token: authProvider.user.token!,
-      )) {
+      );
+
+      if (result == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: secondaryColor,
@@ -55,6 +75,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         );
       }
     }
+
     PreferredSizeWidget header() {
       return AppBar(
         leading: IconButton(
@@ -82,99 +103,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
 
     Widget nameInput() {
-      return Container(
-        margin: EdgeInsets.only(
-          top: 30,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Name',
-              style: secondaryTextStyle.copyWith(
-                fontSize: 13,
-              ),
-            ),
-            TextFormField(
-              style: primaryTextStyle,
-              controller: nameController,
-              decoration: InputDecoration(
-                hintText: user.name,
-                hintStyle: primaryTextStyle,
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: subtitleColor,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildInputField("Name", _nameController);
     }
 
     Widget usernameInput() {
-      return Container(
-        margin: EdgeInsets.only(
-          top: 30,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Username',
-              style: secondaryTextStyle.copyWith(
-                fontSize: 13,
-              ),
-            ),
-            TextFormField(
-              style: primaryTextStyle,
-              controller: usernameController,
-              decoration: InputDecoration(
-                hintText: '@${user.username}',
-                hintStyle: primaryTextStyle,
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: subtitleColor,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildInputField("Username", _usernameController);
     }
 
     Widget emailInput() {
-      return Container(
-        margin: EdgeInsets.only(
-          top: 30,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Email Address',
-              style: secondaryTextStyle.copyWith(
-                fontSize: 13,
-              ),
-            ),
-            TextFormField(
-              style: primaryTextStyle,
-              controller: emailController,
-              decoration: InputDecoration(
-                hintText: user.email,
-                hintStyle: primaryTextStyle,
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: subtitleColor,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildInputField("Email Address", _emailController);
     }
 
     Widget content() {
@@ -186,20 +123,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 100,
-              height: 100,
-              margin: EdgeInsets.only(
-                top: defaultMargin,
-              ),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(
-                  fit: BoxFit.fill,
-                  image: NetworkImage(
-                    user.profilePhotoUrl!,
+            GestureDetector(
+              onTap: _pickImage,
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    margin: EdgeInsets.only(
+                      top: defaultMargin,
+                    ),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: _image != null
+                            ? FileImage(_image!)
+                            : NetworkImage(user.profilePhotoUrl!) as ImageProvider,
+                      ),
+                    ),
                   ),
-                ),
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.camera_alt, size: 20, color: Colors.black),
+                  ),
+                ],
               ),
             ),
             nameInput(),
@@ -215,6 +166,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
       appBar: header(),
       body: content(),
       resizeToAvoidBottomInset: false,
+    );
+  }
+
+  Widget _buildInputField(String label, TextEditingController controller) {
+    return Container(
+      margin: EdgeInsets.only(
+        top: 30,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: secondaryTextStyle.copyWith(
+              fontSize: 13,
+            ),
+          ),
+          TextFormField(
+            style: primaryTextStyle,
+            controller: controller,
+            decoration: InputDecoration(
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: subtitleColor,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

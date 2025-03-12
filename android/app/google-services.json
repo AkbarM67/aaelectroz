@@ -1,8 +1,9 @@
 {
   "project_info": {
     "project_number": "260986349391",
+    "firebase_url": "https://aaelectroz-a1718-default-rtdb.firebaseio.com",
     "project_id": "aaelectroz-a1718",
-    "storage_bucket": "aaelectroz-a1718.appspot.com"
+    "storage_bucket": "aaelectroz-a1718.firebasestorage.app"
   },
   "client": [
     {

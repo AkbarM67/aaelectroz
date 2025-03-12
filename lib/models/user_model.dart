@@ -5,6 +5,7 @@ class UserModel {
   String? username;
   String? profilePhotoUrl;
   String? token;
+  
 
   UserModel({
     this.id,

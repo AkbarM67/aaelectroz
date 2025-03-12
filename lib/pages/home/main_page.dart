@@ -17,6 +17,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     PageProvider pageProvider = Provider.of<PageProvider>(context);
 
+    // 🔹 Floating Button untuk Cart
     Widget cartButton() {
       return FloatingActionButton(
         onPressed: () {
@@ -31,16 +32,16 @@ class _MainPageState extends State<MainPage> {
       );
     }
 
+    // 🔹 Bottom Navigation Bar
     Widget customBottomNav() {
       return ClipRRect(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(30),
         ),
         child: BottomAppBar(
-          padding: EdgeInsets.only(),
           shape: CircularNotchedRectangle(),
           notchMargin: 12,
-          color: backgroundColor4, // Kurangi notchMargin jika terlalu besar
+          color: backgroundColor4,
           clipBehavior: Clip.antiAlias,
           child: BottomNavigationBar(
             backgroundColor: backgroundColor4,
@@ -52,10 +53,7 @@ class _MainPageState extends State<MainPage> {
             items: [
               BottomNavigationBarItem(
                 icon: Container(
-                  margin: EdgeInsets.only(
-                    top: 15,
-                    bottom: 10,  // Kurangi margin bottom
-                  ),
+                  margin: EdgeInsets.only(top: 15, bottom: 10),
                   child: Image.asset(
                     'assets/icons/icon_home.png',
                     width: 21,
@@ -65,14 +63,11 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
                 label: '',
-                tooltip: 'home'
+                tooltip: 'Home',
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  margin: EdgeInsets.only(
-                    top: 15,
-                    bottom: 10,  // Kurangi margin bottom
-                  ),
+                  margin: EdgeInsets.only(top: 15, bottom: 10),
                   child: Image.asset(
                     'assets/icons/icon_chat.png',
                     width: 20,
@@ -82,14 +77,11 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
                 label: '',
-                tooltip: 'chat',
+                tooltip: 'Chat',
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  margin: EdgeInsets.only(
-                    top: 15,
-                    bottom: 10,  // Kurangi margin bottom
-                  ),
+                  margin: EdgeInsets.only(top: 15, bottom: 10),
                   child: Image.asset(
                     'assets/icons/icon_wishlist.png',
                     width: 20,
@@ -99,14 +91,11 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
                 label: '',
-                tooltip: 'wishlist',
+                tooltip: 'Wishlist',
               ),
               BottomNavigationBarItem(
                 icon: Container(
-                  margin: EdgeInsets.only(
-                    top: 15,
-                    bottom: 10,  // Kurangi margin bottom
-                  ),
+                  margin: EdgeInsets.only(top: 15, bottom: 10),
                   child: Image.asset(
                     'assets/icons/icon_profile.png',
                     width: 20,
@@ -116,7 +105,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ),
                 label: '',
-                tooltip: 'profile',
+                tooltip: 'Profile',
               ),
             ],
           ),
@@ -124,10 +113,17 @@ class _MainPageState extends State<MainPage> {
       );
     }
 
-       Widget body() {
+    // 🔹 Menentukan Halaman yang Akan Ditampilkan
+    Widget body() {
       switch (pageProvider.currentIndex) {
         case 0:
-          return HomePage();
+          return HomePage(
+            onCategorySelected: (String category) {
+              setState(() {
+                pageProvider.currentIndex = 0; // Pastikan tetap di home
+              });
+            },
+          );
         case 1:
           return ChatPage();
         case 2:
@@ -135,11 +131,18 @@ class _MainPageState extends State<MainPage> {
         case 3:
           return ProfilePage();
         default:
-          return HomePage();
+          return HomePage(
+            onCategorySelected: (String category) {
+              setState(() {
+                pageProvider.currentIndex = 0;
+              });
+            },
+          );
       }
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor:
           pageProvider.currentIndex == 0 ? backgroundColor1 : backgroundColor3,
       floatingActionButton: cartButton(),

@@ -1,9 +1,9 @@
+import 'package:aaelectroz_fe/firebase_options.dart';
 import 'package:aaelectroz_fe/pages/cart_page.dart';
 import 'package:aaelectroz_fe/pages/checkout_page.dart';
 import 'package:aaelectroz_fe/pages/checkout_success_page.dart';
 import 'package:aaelectroz_fe/pages/edit_profile_page.dart';
 import 'package:aaelectroz_fe/pages/home/main_page.dart';
-import 'package:aaelectroz_fe/pages/payment_page.dart';
 import 'package:aaelectroz_fe/pages/sign_in_page.dart';
 import 'package:aaelectroz_fe/pages/sign_up_page.dart';
 import 'package:aaelectroz_fe/pages/splash_page.dart';
@@ -14,12 +14,20 @@ import 'package:aaelectroz_fe/providers/page_provider.dart';
 import 'package:aaelectroz_fe/providers/product_provider.dart';
 import 'package:aaelectroz_fe/providers/transaction_provider.dart';
 import 'package:aaelectroz_fe/providers/wishlist_provider.dart';
+import 'package:aaelectroz_fe/services/auth_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -27,7 +35,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => AuthProvider(),
+          create: (context) => AuthProvider(authService: AuthService()),
         ),
         ChangeNotifierProvider(
           create: (context) => ProductProvider(),
@@ -47,6 +55,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(
           create: (context) => CategoryProvider(),
         ),
+        
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -58,8 +67,8 @@ class MyApp extends StatelessWidget {
           '/edit-profile': (context) => EditProfilePage(),
           '/cart': (context) => CartPage(),
           '/checkout': (context) => CheckoutPage(),
-          '/checkout-payment': (context) => PaymentPage(),
           '/checkout-success': (context) => CheckoutSuccessPage(),
+
         },
       ),
     );

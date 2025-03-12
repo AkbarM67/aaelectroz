@@ -1,31 +1,28 @@
+import 'package:flutter/material.dart';
 import 'package:aaelectroz_fe/models/user_model.dart';
 import 'package:aaelectroz_fe/services/auth_service.dart';
-import 'package:flutter/material.dart';
 
 class AuthProvider with ChangeNotifier {
-  late UserModel _user;
+  final AuthService authService;
 
+  AuthProvider({required this.authService});
+
+  late UserModel _user;
   UserModel get user => _user;
 
-  set user(UserModel user) {
-    _user = user;
-    notifyListeners();
-  }
-
   Future<bool> register({
-    String? name,
-    String? username,
-    String? email,
-    String? password,
+    required String? name,
+    required String? username,
+    required String? email,
+    required String? password,
   }) async {
     try {
-      UserModel user = await AuthService().register(
+      UserModel user = await authService.register(
         name: name,
         username: username,
         email: email,
         password: password,
       );
-
       _user = user;
       return true;
     } catch (e) {
@@ -35,15 +32,14 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<bool> login({
-    String? email,
-    String? password,
+    required String? email,
+    required String? password,
   }) async {
     try {
-      UserModel user = await AuthService().login(
+      UserModel user = await authService.login(
         email: email,
         password: password,
       );
-
       _user = user;
       return true;
     } catch (e) {
@@ -51,45 +47,15 @@ class AuthProvider with ChangeNotifier {
       return false;
     }
   }
-   Future<bool> editProfile({
-    required String name,
-    required String username,
-    required String email,
-    required String token,
-  }) async {
-    try {
-      UserModel user = await AuthService().editProfile(
-        name: name,
-        username: username,
-        email: email,
-        token: token,
-      );
-
-      _user = user;
-
-      return true;
-    } catch (e) {
-      print(e);
-
-      return false;
-    }
-  }
-
-  var result = true;
 
   Future<bool> logout(String token) async {
     try {
-      if (await AuthService().logout(token)) {
-        result = true;
-      }
-      return result;
+      return await authService.logout(token);
     } catch (e) {
       print(e);
-
-      result = false;
+      return false;
     }
-
-    return result;
   }
-}
 
+  editProfile({required String name, required String username, required String email, required String token}) {}
+}
