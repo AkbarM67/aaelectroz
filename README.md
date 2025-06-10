@@ -1,6 +1,8 @@
 # aaelectroz_fe
 
-A new Flutter project.
+desain
+
+![Image](https://github.com/user-attachments/assets/ed25df3a-2037-4abf-b457-32206c304e38)
 
 ## Getting Started
 
